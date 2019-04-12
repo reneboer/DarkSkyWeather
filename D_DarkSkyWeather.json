@@ -508,8 +508,8 @@
 		{
 			"id": 5,
 			"label": {
-				"lang_tag": "ui7_ozone_goes_below",
-				"text": "Ozone goes below"
+				"lang_tag": "ui7_ozone_goes_above",
+				"text": "Ozone goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
@@ -564,8 +564,8 @@
 		{
 			"id": 7,
 			"label": {
-				"lang_tag": "ui7_uvindex_goes_below",
-				"text": "UV Index goes below"
+				"lang_tag": "ui7_uvindex_goes_above",
+				"text": "UV Index goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
@@ -614,8 +614,8 @@
 		{
 			"id": 9,
 			"label": {
-				"lang_tag": "ui7_visibility_goes_below",
-				"text": "Visibility goes below"
+				"lang_tag": "ui7_visibility_goes_above",
+				"text": "Visibility goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
@@ -776,8 +776,8 @@
 		{
 			"id": 15,
 			"label": {
-				"lang_tag": "ui7_cloud_cover_goes_below",
-				"text": "Cloud cover goes below"
+				"lang_tag": "ui7_cloud_cover_goes_above",
+				"text": "Cloud cover goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
@@ -836,8 +836,8 @@
 		{
 			"id": 17,
 			"label": {
-				"lang_tag": "ui7_wind_speed_goes_below",
-				"text": "Wind speed goes below"
+				"lang_tag": "ui7_wind_speed_goes_above",
+				"text": "Wind speed goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
@@ -890,8 +890,8 @@
 		{
 			"id": 19,
 			"label": {
-				"lang_tag": "ui7_wind_gust_goes_below",
-				"text": "Wind gust speed goes below"
+				"lang_tag": "ui7_wind_gust_goes_above",
+				"text": "Wind gust speed goes above"
 			},
 			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",

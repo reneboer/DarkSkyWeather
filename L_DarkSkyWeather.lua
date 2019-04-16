@@ -1,5 +1,5 @@
 _NAME = "DarkSky Weather"
-_VERSION = "0.7"
+_VERSION = "0.8"
 _DESCRIPTION = "DarkSky Weather plugin"
 _AUTHOR = "Rene Boer"
 
@@ -14,6 +14,8 @@ Version 0.3 2016-11-19 - Beta version with:
 Version 0.4 2016-11-26 - a few bug fixes and exposes more DarkSky variables - thanks @MikeYeager
 Version 0.5 2019-03-23 - Added WindGust, uvIndex, Visibility
 Version 0.7 2019-04-09 - Added Settings tab, Vera UI7 support, optimized request eliminating hourly data.
+Version 0.8 2019-04-16 - Correction in trigger labels on .json file.
+
 
 Original author logread (aka LV999) upto version 0.4.
 

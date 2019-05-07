@@ -1,8 +1,9 @@
-_NAME = "DarkSky Weather"
-_VERSION = "0.8"
-_DESCRIPTION = "DarkSky Weather plugin"
-_AUTHOR = "Rene Boer"
-
+ABOUT = {
+	NAME = "DarkSky Weather",
+	VERSION = "0.9",
+	DESCRIPTION = "DarkSky Weather plugin",
+	AUTHOR = "Rene Boer"
+}	
 --[[
 
 Version 0.1 2016-11-17 - Alpha version for testing
@@ -15,6 +16,7 @@ Version 0.4 2016-11-26 - a few bug fixes and exposes more DarkSky variables - th
 Version 0.5 2019-03-23 - Added WindGust, uvIndex, Visibility
 Version 0.7 2019-04-09 - Added Settings tab, Vera UI7 support, optimized request eliminating hourly data.
 Version 0.8 2019-04-16 - Correction in trigger labels on .json file.
+Version 0.9 2019-05-03 - Added display line selections.
 
 
 Original author logread (aka LV999) upto version 0.4.
@@ -26,9 +28,9 @@ available on the website https://darksky.net/dev/
 It requires an API developer key that must be obtained from the website.
 
 This program is free software: you can redistribute it and/or modify
-it under the condition that it is for private or home useage and
+it under the condition that it is for private or home usage and
 this whole comment is reproduced in the source code file.
-Commercial utilisation is not authorized without the appropriate
+Commercial utilization is not authorized without the appropriate
 written agreement from "reneboer", contact by PM on http://community.getvera.com/
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,12 +38,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --]]
 
 -- plugin general variables
-
 local https = require("ssl.https")
 local json = require("dkjson")
 
 local SID_Weather = "urn:upnp-micasaverde-com:serviceId:Weather1"
 local SID_Security = "urn:micasaverde-com:serviceId:SecuritySensor1"
+local SID_Humid = "urn:micasaverde-com:serviceId:HumiditySensor1"
+local SID_Baro = "urn:upnp-org:serviceId:BarometerSensor1"
+local SID_Temp = "urn:upnp-org:serviceId:TemperatureSensor1"
 local SID_AltUI = "urn:upnp-org:serviceId:altui1"
 local DS_urltemplate = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s&exclude=hourly"
 local this_device, child_temperature, child_humidity = nil, nil, nil
@@ -53,23 +57,27 @@ local DS = {
 	Longitude = "",
 	Period = 1800,	-- data refresh interval in seconds
 	Units = "auto",
+	DispLine1 = 1,
+	DispLine2 = 2,
+	ForecastDays = 2,
 	Language = "en", -- default language
 	ProviderName = "DarkSky (formerly Forecast.io)", -- added for reference to data source
 	ProviderURL = "https://darksky.net/dev/",
 	IconsProvider = "Thanks to icons8 at https://icons8.com",
-	Documentation = "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/documentation/DarkSkyWeather.pdf",
+	Documentation = "https://github.com/reneboer/DarkSkyWeather/wiki",
 	LogLevel = 1,
-	Version = _VERSION
+	Version = ABOUT.VERSION
 }
 
 local static_Vars = "ProviderName, ProviderURL, IconsProvider, Documentation, Version"
 
 -- this is the table used to map DarkSky output elements with the plugin serviceIds and variables
+--[[
 local VariablesMap = {
 	currently_apparentTemperature = {serviceId = SID_Weather, variable = "ApparentTemperature"},
 	currently_cloudCover = {serviceId = SID_Weather, variable = "CurrentCloudCover", multiplier = 100},
 	currently_dewPoint = {serviceId = SID_Weather, variable = "CurrentDewPoint", decimal = 1},
-	currently_humidity = {serviceId = "urn:micasaverde-com:serviceId:HumiditySensor1", variable = "CurrentLevel", multiplier = 100, decimal = 0},
+	currently_humidity = {serviceId = SID_Humid, variable = "CurrentLevel", multiplier = 100, decimal = 0},
 	currently_icon = {serviceId = SID_Weather, variable = "icon"},
 	currently_ozone = {serviceId = SID_Weather, variable = "Ozone"},
 	currently_uvIndex = {serviceId = SID_Weather, variable = "uvIndex"},
@@ -77,23 +85,88 @@ local VariablesMap = {
 	currently_precipIntensity = {serviceId = SID_Weather, variable = "PrecipIntensity"},
 	currently_precipProbability = {serviceId = SID_Weather, variable = "PrecipProbability", multiplier = 100},
 	currently_precipType = {serviceId = SID_Weather, variable = "PrecipType"},
-	currently_pressure = {serviceId = "urn:upnp-org:serviceId:BarometerSensor1", variable = "CurrentPressure", decimal = 0},
+	currently_pressure = {serviceId = SID_Baro, variable = "CurrentPressure", decimal = 0},
 	currently_summary = {serviceId = SID_Weather, variable = "CurrentConditions"},
-	currently_temperature = {serviceId = "urn:upnp-org:serviceId:TemperatureSensor1", variable = "CurrentTemperature", decimal = 1},
+	currently_temperature = {serviceId = SID_Temp, variable = "CurrentTemperature", decimal = 1},
 	currently_time = {serviceId = SID_Weather, variable = "LastUpdate"},
 	currently_windBearing =  {serviceId = SID_Weather, variable = "WindBearing"},
 	currently_windSpeed = {serviceId = SID_Weather, variable = "WindSpeed"},
 	currently_windGust = {serviceId = SID_Weather, variable = "WindGust"},
-	daily_data_1_pressure = {serviceId = SID_Weather, variable = "TodayPressure", decimal = 0},
-	daily_data_1_summary = {serviceId = SID_Weather, variable = "TodayConditions"},
-	daily_data_1_temperatureMax = {serviceId = SID_Weather, variable = "TodayHighTemp", decimal = 1},
-	daily_data_1_temperatureMin = {serviceId = SID_Weather, variable = "TodayLowTemp", decimal = 1},
-	daily_data_2_pressure = {serviceId = SID_Weather, variable = "TomorrowPressure", decimal = 0},
-	daily_data_2_summary = {serviceId = SID_Weather, variable = "TomorrowConditions"},
-	daily_data_2_temperatureMax = {serviceId = SID_Weather, variable = "TomorrowHighTemp", decimal = 1},
-	daily_data_2_temperatureMin = {serviceId = SID_Weather, variable = "TomorrowLowTemp", decimal = 1},
+	daily_data_pressure = {serviceId = SID_Weather, variable = "TodayPressure", decimal = 0},
+	daily_data_summary = {serviceId = SID_Weather, variable = "TodayConditions"},
+	daily_data_temperatureMax = {serviceId = SID_Weather, variable = "TodayHighTemp", decimal = 1},
+	daily_data_temperatureMin = {serviceId = SID_Weather, variable = "TodayLowTemp", decimal = 1},
+	daily_data_icon = {serviceId = SID_Weather, variable = "icon"},
 	daily_summary = {serviceId = SID_Weather, variable = "WeekConditions"}
 }
+]]
+local VariablesMap = {
+	currently = { 
+		["apparentTemperature"] = {serviceId = SID_Weather, variable = "ApparentTemperature"},
+		["cloudCover"] = {serviceId = SID_Weather, variable = "CurrentCloudCover", multiplier = 100},
+		["dewPoint"] = {serviceId = SID_Weather, variable = "CurrentDewPoint", decimal = 1},
+		["humidity"] = {serviceId = SID_Humid, variable = "CurrentLevel", multiplier = 100, decimal = 0},
+		["icon"] = {serviceId = SID_Weather, variable = "icon"},
+		["ozone"] = {serviceId = SID_Weather, variable = "Ozone"},
+		["uvIndex"] = {serviceId = SID_Weather, variable = "uvIndex"},
+		["visibility"] = {serviceId = SID_Weather, variable = "Visibility"},
+		["precipIntensity"] = {serviceId = SID_Weather, variable = "PrecipIntensity"},
+		["precipProbability"] = {serviceId = SID_Weather, variable = "PrecipProbability", multiplier = 100},
+		["precipType"] = {serviceId = SID_Weather, variable = "PrecipType"},
+		["pressure"] = {serviceId = SID_Baro, variable = "CurrentPressure", decimal = 0},
+		["summary"] = {serviceId = SID_Weather, variable = "CurrentConditions"},
+		["temperature"] = {serviceId = SID_Temp, variable = "CurrentTemperature", decimal = 1},
+		["time"] = {serviceId = SID_Weather, variable = "LastUpdate"},
+		["windBearing"] =  {serviceId = SID_Weather, variable = "WindBearing"},
+		["windSpeed"] = {serviceId = SID_Weather, variable = "WindSpeed"},
+		["windGust"] = {serviceId = SID_Weather, variable = "WindGust"}
+	},
+	forecast = { 
+		["pressure"] = {serviceId = SID_Weather, variable = "Pressure", decimal = 0},
+		["summary"] = {serviceId = SID_Weather, variable = "Conditions"},
+		["ozone"] = {serviceId = SID_Weather, variable = "Ozone"},
+		["uvIndex"] = {serviceId = SID_Weather, variable = "uvIndex"},
+		["uvIndexTime"] = {serviceId = SID_Weather, variable = "uvIndexTime"},
+		["visibility"] = {serviceId = SID_Weather, variable = "Visibility"},
+		["precipIntensity"] = {serviceId = SID_Weather, variable = "PrecipIntensity"},
+		["precipIntensityMax"] = {serviceId = SID_Weather, variable = "PrecipIntensityMax"},
+		["precipIntensityMaxTime"] = {serviceId = SID_Weather, variable = "PrecipIntensityMaxTime"},
+		["precipProbability"] = {serviceId = SID_Weather, variable = "PrecipProbability", multiplier = 100},
+		["precipType"] = {serviceId = SID_Weather, variable = "PrecipType"},
+		["temperatureMax"] = {serviceId = SID_Weather, variable = "MaxTemp", decimal = 1},
+		["temperatureMaxTime"] = {serviceId = SID_Weather, variable = "MaxTempTime", decimal = 1},
+		["temperatureMin"] = {serviceId = SID_Weather, variable = "MinTemp", decimal = 1},
+		["temperatureMinTime"] = {serviceId = SID_Weather, variable = "MinTempTime", decimal = 1},
+		["apparentTemperatureMax"] = {serviceId = SID_Weather, variable = "ApparentMaxTemp", decimal = 1},
+		["apparentTemperatureMaxTime"] = {serviceId = SID_Weather, variable = "ApparentMaxTempTime", decimal = 1},
+		["apparentTemperatureMin"] = {serviceId = SID_Weather, variable = "ApparentMinTemp", decimal = 1},
+		["apparentTemperatureMinTime"] = {serviceId = SID_Weather, variable = "ApparentMinTempTime", decimal = 1},
+		["icon"] = {serviceId = SID_Weather, variable = "Icon"},
+		["cloudCover"] = {serviceId = SID_Weather, variable = "CloudCover", multiplier = 100},
+		["dewPoint"] = {serviceId = SID_Weather, variable = "DewPoint", decimal = 1},
+		["humidity"] = {serviceId = SID_Weather, variable = "Humidity", multiplier = 100, decimal = 0},
+		["windBearing"] =  {serviceId = SID_Weather, variable = "WindBearing"},
+		["windSpeed"] = {serviceId = SID_Weather, variable = "WindSpeed"},
+		["windGust"] = {serviceId = SID_Weather, variable = "WindGust"},
+		["windGustTime"] = {serviceId = SID_Weather, variable = "WindGustTime"}
+	},
+	daily_summary = {serviceId = SID_Weather, variable = "WeekConditions"}
+}
+-- Mapping of data to display in ALTUI DisplayLines 1 & 2.
+-- Keep definitions in sync with JS code.
+local DisplayMap = {
+	[1] = {{ prefix = "", var = "CurrentConditions" }},
+	[2] = {{ prefix = "Pressure: ", var = "CurrentPressure", sid = SID_Baro}},
+	[3] = {{ prefix = "Last update: ", var = "LastUpdate" }},
+    [4] = {{ prefix = "Wind: ", var = "WindSpeed" },{ prefix = "Gust: ", var = "WindGust" },{ prefix = "Bearing: ", var = "WindBearing" }},
+    [5] = {{ prefix = "Ozone: ", var = "Ozone" },{ prefix = "UV Index: ", var = "uvIndex" }},
+    [6] = {{ prefix = "Current Temperature: ", var = "CurrentTemperature", sid = SID_Temp }},
+    [7] = {{ prefix = "Apparent Temperature: ", var = "ApparentTemperature" }},
+    [8] = {{ prefix = "Current Cloud Cover: ", var = "CurrentCloudCover" }},
+    [9] = {{ prefix = "Precip: ", var = "PrecipType" },{ prefix = "Prob.: ", var = "PrecipProbability" },{ prefix = "Intensity: ", var = "PrecipIntensity" }},
+    [10] = {{ prefix = "Humidity: ", var = "CurrentLevel", sid = SID_Humid },{ prefix = "Dew Point: ", var = "dewPoint" }}
+}
+
 
 ---------------------------------------------------------------------------------------------
 -- Utility functions
@@ -295,18 +368,19 @@ local taskHandle = -1
 end 
 
 -- processes and parses the DS data into device variables 
-local function setvariables(key, value)
-	if VariablesMap[key] then
-		if VariablesMap[key].pattern then value = string.gsub(value, VariablesMap[key].pattern, "") end
-		if VariablesMap[key].multiplier then value = value * VariablesMap[key].multiplier end
-		if VariablesMap[key].decimal then value = math.floor(value * 10^VariablesMap[key].decimal + .5) / 10^VariablesMap[key].decimal end
-		var.Set(VariablesMap[key].variable, value, VariablesMap[key].serviceId)
-		if VariablesMap[key].serviceId == "urn:upnp-org:serviceId:TemperatureSensor1" then -- we update the child device as well
-			var.Set(VariablesMap[key].variable, value, VariablesMap[key].serviceId, child_temperature)
-		end
-		if VariablesMap[key].serviceId == "urn:micasaverde-com:serviceId:HumiditySensor1" then -- we update the child device as well
-			var.Set(VariablesMap[key].variable, value, VariablesMap[key].serviceId, child_humidity)
-		end
+local function setvariables(varmap, value, prefix)
+	if not prefix then prefix = "" end
+	if varmap.pattern then value = string.gsub(value, varmap.pattern, "") end
+	if varmap.multiplier then value = value * varmap.multiplier end
+	if varmap.decimal then value = math.floor(value * 10^varmap.decimal + .5) / 10^varmap.decimal end
+	var.Set(prefix..varmap.variable, value, varmap.serviceId)
+	if prefix == "" and varmap.serviceId == SID_Temp then -- we update the child device as well
+		var.Set(varmap.variable, value, varmap.serviceId, child_temperature)
+	end
+	if prefix == "" and varmap.serviceId == SID_Humid then -- we update the child device as well
+		var.Set(varmap.variable, value, varmap.serviceId, child_humidity)
+	end
+--[[
 		if tonumber(DS.RainSensor) == 1 then
 			-- the option of a virtual rain sensor is on, so we set the rain flags based on the trigger levels
 			log.Debug("DEBUG: IntensityTrigger = %d - ProbabilityTrigger = %d", DS.PrecipIntensityTrigger, DS.PrecipProbabilityTrigger) 
@@ -316,20 +390,80 @@ local function setvariables(key, value)
 				then rain_probability_trigger = tonumber(value) >= tonumber(DS.PrecipProbabilityTrigger) end
 			end
 	end
+]]
 end
 
--- flattens the DS json raw weather information hierarchy into a single dimension lua table for subsequent parsing.
-local function extractloop(datatable, keystring)
-	local tempstr, separator
-	keystring = keystring or ""
-	for tkey, value in pairs(datatable) do
-		if keystring ~= "" then separator = "_" else separator = "" end
-		tempstr = table.concat{keystring, separator, tkey}
-		if type(value) == "table" then -- one level up in the data hierarchy -> recursive call
-			extractloop(value, tempstr)
-		else
-			setvariables(tempstr, value)
+-- Parse the DS json raw weather information hierarchy.
+local function extractloop(datatable)
+	-- Get the currently values we are interested in.
+	local curTab = datatable.currently
+	if curTab then
+	    for tkey, value in pairs(VariablesMap.currently) do
+	        if curTab[tkey] then
+	            setvariables(value,curTab[tkey])
+	        else
+	            log.Debug("Currently key not found ",tkey)
+	        end     
 		end
+    else
+        log.Warning("No currently data")
+	end
+	-- Get the forecast data the user wants
+	local forecastDays = var.GetNumber("ForecastDays")
+	if forecastDays > 0 then
+		for fd = 1, forecastDays do
+			local prefix = ""
+			if fd == 1 then
+				prefix = "Today"
+			elseif fd == 2 then	
+				prefix = "Tomorrow"
+			else
+				prefix = "Forecast."..fd.."."
+			end
+			local curDay = datatable.daily.data[fd]
+			if curDay then
+				for tkey, value in pairs(VariablesMap.forecast) do
+					if curDay[tkey] then
+						setvariables(value,curDay[tkey],prefix)
+					else
+						log.Debug("Daily key %s not found",tkey)
+					end     
+				end
+			else
+				log.Warning("No daily data for day "..fd)
+			end
+		end
+	else
+		log.Debug("No forecast data configured")
+	end
+	-- Get daily summary data
+	if datatable.daily.summary then
+		setvariables(VariablesMap.daily_summary,datatable.daily.summary)
+	end	
+end
+
+-- Build display line based on user preference
+local function displayLine(linenum)
+	local tc, ti = table.concat, table.insert
+	local txtTab = {}
+	local dispIdx = var.GetNumber("DispLine"..linenum)
+	if dispIdx ~= 0 then
+		for k,v in ipairs(DisplayMap[dispIdx]) do
+			local val = var.Get(v.var,v.sid)
+			if val ~= '' then
+				if v.var == "LastUpdate" then
+					val = os.date("%c",val)
+				end
+				ti(txtTab, v.prefix .. val)
+			end    
+		end
+		if #txtTab ~= 0 then
+			var.Set("DisplayLine"..linenum, tc(txtTab, ", "), SID_AltUI) 
+		else
+			log.Warning("No information found for DisplayLine"..linenum)
+		end    
+	else
+		log.Warning("No configuration set for DisplayLine"..linenum)
 	end
 end
 
@@ -349,8 +483,8 @@ local function DS_GetData()
 			if not (err == 225) then
 				extractloop(wdata)
 				-- Update display for ALTUI
-				var.Set("DisplayLine1", var.Get("CurrentConditions"), SID_AltUI)
-				var.Set("DisplayLine2",	"Pressure: " .. var.Get("CurrentPressure", "urn:upnp-org:serviceId:BarometerSensor1"), SID_AltUI)
+				displayLine(1)
+				displayLine(2)
 			else 
 				log.Error("DarkSky API json decode error = %s", tostring(err)) 
 			end
@@ -432,11 +566,11 @@ function init(lul_device)
 	var = varAPI()
 	var.Initialize(SID_Weather, this_device)
 	var.Default("LogLevel", 1)
-	log.Initialize(_NAME, var.GetNumber("LogLevel"))
+	log.Initialize(ABOUT.NAME, var.GetNumber("LogLevel"))
 	log.Info("device startup")
 	check_param_updates()
 	createchildren(this_device)
 	Weather_delay_callback()
 	log.Info("device started")
-	return true, "OK", _NAME
+	return true, "OK", ABOUT.NAME
 end

@@ -2,7 +2,11 @@
 /* 
 	DarkSkyWeather Hub Control UI
 	Written by R.Boer. 
-	V0.7 9 April 2019
+	V0.9 3 May 2019
+	
+Changes V0.9:
+	Added display line selections.
+	Selectable number of forecast days to include.
 */
 var DarkSkyWeather = (function (api) {
 
@@ -38,18 +42,24 @@ var DarkSkyWeather = (function (api) {
 			var logLevel = [{'value':'1','label':'Error'},{'value':'2','label':'Warning'},{'value':'8','label':'Info'},{'value':'11','label':'Debug'}];
 			var unitMap = [{'value':'auto','label':'Auto'},{'value':'si','label':'System International'},{'value':'us','label':'Imperial'},{'value':'ca','label':'Canadian'},{'value':'uk2','label':'British'}];
 			var languageMap = [{'value':'ar','label':'Arabic'},{'value':'aa','label':'Azerbaijani'},{'value':'be','label':'Belarusian'},{'value':'bg','label':'Bulgarian'},{'value':'bn','label':'Bengali'},{'value':'bs','label':'Bosnian'},{'value':'ca','label':'Catalan'},{'value':'cs','label':'Czech'},{'value':'da','label':'Danish'},{'value':'nl','label':'Dutch'},{'value':'de','label':'German'},{'value':'el','label':'Greek'},{'value':'en','label':'English'},{'value':'eo','label':'Esperanto'},{'value':'es','label':'Spanish'},{'value':'et','label':'Estonian'},{'value':'fi','label':'Finnish'},{'value':'fr','label':'French'},{'value':'he','label':'Hebrew'},{'value':'hi','label':'Hindi'},{'value':'hr','label':'Croatian'},{'value':'hu','label':'Hungarian'},{'value':'id','label':'Indonesian'},{'value':'is','label':'Icelandic'},{'value':'it','label':'Italian'},{'value':'ja','label':'Japanese'},{'value':'ka','label':'Georgian'},{'value':'kn','label':'Kannada'},{'value':'ko','label':'Korean'},{'value':'kw','label':'Cornish'},{'value':'lv','label':'Latvian'},{'value':'ml','label':'Malayam'},{'value':'mr','label':'Marathi'},{'value':'nb','label':'Norwegian Bokmål'},{'value':'no','label':'Norwegian'},{'value':'pa','label':'Punjabi'},{'value':'pl','label':'Polish'},{'value':'pt','label':'Portuguese'},{'value':'ro','label':'Romanian'},{'value':'ru','label':'Russian'},{'value':'sk','label':'Slovak'},{'value':'sl','label':'Slovenian'},{'value':'sr','label':'Serbian'},{'value':'sv','label':'Swedish'},{'value':'ta','label':'Tamil'},{'value':'te','label':'Telugu'},{'value':'tet','label':'Tetum'},{'value':'tr','label':'Turkish'},{'value':'uk','label':'Ukrainian'},{'value':'ur','label':'Urdu'},{'value':'x-pig-latin','label':'Igpay Atinlay'},{'value':'zh','label':'simplified Chinese'},{'value':'zh-tw','label':'traditional Chinese'}];
+			// Keep selections in match with table in LUA code.
+			var displayMap = [{'value':1,'label':'Current Conditions'},{'value':2,'label':'Current Pressure'},{'value':3,'label':'Last Update'},{'value':4,'label':'Wind Speed, Gust and Bearing'},{'value':5,'label':'Ozone and UV Index'},{'value':6,'label':'Current Temperature'},{'value':7,'label':'Apparent Temperature'},{'value':8,'label':'Current Cloud Cover'},{'value':9,'label':'Percipipation Type, Probability and Intensity'},{'value':10,'label':'Humidity and Dew Point'}];
+			var forecastMap = [{'value':0,'label':'No forecast'},{'value':1,'label':'One day'},{'value':2,'label':'Two days'},{'value':3,'label':'Three days'},{'value':4,'label':'Four days'},{'value':5,'label':'Five days'},{'value':6,'label':'Six days'},{'value':7,'label':'Seven days'}];
 
 			var html = '<div class="deviceCpanelSettingsPage">'+
 				'<h3>Device #'+deviceID+'&nbsp;&nbsp;&nbsp;'+api.getDisplayedDeviceName(deviceID)+'</h3>';
 			if (deviceObj.disabled === '1' || deviceObj.disabled === 1) {
 				html += '<br>Plugin is disabled in Attributes.';
 			} else {
-				html +=	htmlAddInput(deviceID, 'DarkSky Provider Key', 70, 'Key','UpdateSettingsCB') + 
-				htmlAddInput(deviceID, 'Location Latitude', 10, 'Latitude','UpdateSettingsCB')+
-				htmlAddInput(deviceID, 'Location Longitude', 10, 'Longitude','UpdateSettingsCB')+
-				htmlAddPulldown(deviceID, 'Update Interval', 'Period', timeUpd,'UpdateSettingsCB')+
-				htmlAddPulldown(deviceID, 'Language', 'Language', languageMap,'UpdateSettingsCB')+
-				htmlAddPulldown(deviceID, 'Units', 'Units', unitMap,'UpdateSettingsCB')+
+				html +=	htmlAddInput(deviceID, 'DarkSky Provider Key', 70, 'Key', 'UpdateSettingsCB') + 
+				htmlAddInput(deviceID, 'Location Latitude', 10, 'Latitude', 'UpdateSettingsCB')+
+				htmlAddInput(deviceID, 'Location Longitude', 10, 'Longitude', 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Update Interval', 'Period', timeUpd, 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Language', 'Language', languageMap, 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Units', 'Units', unitMap, 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Forecast days', 'ForecastDays', forecastMap, 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Display line 1', 'DispLine1', displayMap, 'UpdateSettingsCB')+
+				htmlAddPulldown(deviceID, 'Display line 2', 'DispLine2', displayMap, 'UpdateSettingsCB')+
 				htmlAddPulldown(deviceID, 'Log level', 'LogLevel', logLevel, 'UpdateSettingsCB')+
 				htmlAddButton(deviceID,'DoReload');
 			}

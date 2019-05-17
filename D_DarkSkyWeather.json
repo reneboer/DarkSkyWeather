@@ -1,7 +1,7 @@
 {
-	"default_icon": "DarkSky-default.png",
+	"default_icon": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-default.png",
 	"state_icons": [{
-			"img": "DarkSky-clear-day.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-clear-day.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -10,7 +10,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-clear-night.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-clear-night.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -19,7 +19,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-partly-cloudy-day.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-partly-cloudy-day.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -28,7 +28,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-partly-cloudy-night.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-partly-cloudy-night.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -37,7 +37,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-cloudy.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-cloudy.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -46,7 +46,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-rain.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-rain.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -55,7 +55,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-sleet.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-sleet.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -64,7 +64,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-snow.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-snow.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -73,7 +73,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-wind.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-wind.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",
@@ -82,7 +82,7 @@
 			}]
 		},
 		{
-			"img": "DarkSky-fog.png",
+			"img": "https://raw.githubusercontent.com/reneboer/DarkSkyWeather/master/icons/DarkSky-fog.png",
 			"conditions": [{
 				"service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 				"variable": "icon",

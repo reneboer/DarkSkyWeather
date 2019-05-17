@@ -45,6 +45,7 @@ var DarkSkyWeather = (function (api) {
 			// Keep selections in match with table in LUA code.
 			var displayMap = [{'value':1,'label':'Current Conditions'},{'value':2,'label':'Current Pressure'},{'value':3,'label':'Last Update'},{'value':4,'label':'Wind Speed, Gust and Bearing'},{'value':5,'label':'Ozone and UV Index'},{'value':6,'label':'Current Temperature'},{'value':7,'label':'Apparent Temperature'},{'value':8,'label':'Current Cloud Cover'},{'value':9,'label':'Percipipation Type, Probability and Intensity'},{'value':10,'label':'Humidity and Dew Point'}];
 			var forecastMap = [{'value':0,'label':'No forecast'},{'value':1,'label':'One day'},{'value':2,'label':'Two days'},{'value':3,'label':'Three days'},{'value':4,'label':'Four days'},{'value':5,'label':'Five days'},{'value':6,'label':'Six days'},{'value':7,'label':'Seven days'}];
+			var childDevMap = [{'value':'T','label':'Temperature'},{'value':'H','label':'Humidity'},{'value':'P','label':'Pressure'},{'value':'A','label':'Apparent Temperature'},{'value':'O','label':'Ozone'},{'value':'U','label':'UV Index'},{'value':'V','label':'Visibility'},{'value':'W','label':'Wind Data'},{'value':'R','label':'Percipipation Data'}];
 
 			var html = '<div class="deviceCpanelSettingsPage">'+
 				'<h3>Device #'+deviceID+'&nbsp;&nbsp;&nbsp;'+api.getDisplayedDeviceName(deviceID)+'</h3>';
@@ -60,6 +61,7 @@ var DarkSkyWeather = (function (api) {
 				htmlAddPulldown(deviceID, 'Forecast days', 'ForecastDays', forecastMap, 'UpdateSettingsCB')+
 				htmlAddPulldown(deviceID, 'Display line 1', 'DispLine1', displayMap, 'UpdateSettingsCB')+
 				htmlAddPulldown(deviceID, 'Display line 2', 'DispLine2', displayMap, 'UpdateSettingsCB')+
+				htmlAddPulldownMultiple(deviceID, 'Child devices', 'ChildDev', childDevMap, 'UpdateSettingsCB')+
 				htmlAddPulldown(deviceID, 'Log level', 'LogLevel', logLevel, 'UpdateSettingsCB')+
 				htmlAddButton(deviceID,'DoReload');
 			}
@@ -76,6 +78,9 @@ var DarkSkyWeather = (function (api) {
 		switch (varID) {
 		case 'LogLevel':
 			api.performLuActionOnDevice(deviceID, SID_Weather, 'SetLogLevel',  { actionArguments: { newLogLevel: val }});
+			break;
+		case 'ChildDev':
+			varSet(deviceID,varID,(typeof val === 'object')?val.join():val);
 			break;
 		default:
 			varSet(deviceID,varID,val);
@@ -111,10 +116,39 @@ var DarkSkyWeather = (function (api) {
 		var html = '<div class="clearfix labelInputContainer">'+
 					'<div class="pull-left inputLabel '+((bOnALTUI) ? 'form-control form-control-sm form-control-plaintext' : '')+'" style="width:280px;">'+lb+'</div>'+
 					'<div class="pull-left">'+
-						'<input class="customInput '+((bOnALTUI) ? 'altui-ui-input form-control form-control-sm' : '')+'" '+onch+'style="width:280px;" '+typ+' size="'+si+'" id="dsID_'+vr+di+'" value="'+val+'">'+
+						'<input class="customInput '+((bOnALTUI) ? 'altui-ui-input form-control form-control-sm' : '')+'"'+onch+' style="width:280px;" '+typ+' size="'+si+'" id="dsID_'+vr+di+'" value="'+val+'">'+
 					'</div>'+
 				   '</div>';
 		return html;
+	}
+	
+	// Add a label and multiple selection
+	function htmlAddPulldownMultiple(di, lb, vr, values, cb) {
+		try {
+			var selVal = varGet(di, vr);
+			var onch = (typeof cb != 'undefined') ? ' onchange=DarkSkyWeather.'+cb+'(\''+di+'\',\''+vr+'\'); ' : ' ';
+			var selected = [];
+			if (selVal !== '') {
+				selected = selVal.split(',');
+			}
+			var html = '<div class="clearfix labelInputContainer">'+
+				'<div class="pull-left inputLabel" style="width:280px;">'+lb+'</div>'+
+				'<div class="pull-left">'+
+				'<select size="7" style="width:200px;" id="dsID_'+vr+di+'"'+onch+' multiple>';
+			for(var i=0;i<values.length;i++){
+				html+='<option value="'+values[i].value+'" ';
+				for (var j=0;j<selected.length;j++) {
+					html += ((values[i].value==selected[j])?'selected':'');
+				}	
+				html +=	'>'+values[i].label+'</option>';
+			}
+			html += '</select>'+
+				'</div>'+
+				'</div>';
+			return html;
+		} catch (e) {
+			Utils.logError('DarkSkyWeather: htmlAddPulldownMultiple(): ' + e);
+		}
 	}
 
 	// Update variable in user_data and lu_status

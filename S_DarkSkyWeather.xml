@@ -2,7 +2,7 @@
 <!-- 
 	Module S_DarkSkyWeather.xml
 	Written by R.Boer. 
-	V0.7, 9 April 2019
+	V1.2, 21 May 2019
 -->
 <scpd xmlns="urn:schemas-upnp-org:service-1-0">
 	<specVersion>
@@ -20,30 +20,22 @@
 		<stateVariable sendEvents="no"><name>Language</name>					<dataType>string</dataType>	<defaultValue>en</defaultValue> </stateVariable>
 		<stateVariable sendEvents="no"><name>LogLevel</name>					<dataType>ui2</dataType>	<defaultValue>1</defaultValue></stateVariable>
 		<stateVariable sendEvents="yes"><name>icon</name>						<dataType>string</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>ApparentTemperature</name>		<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentApparentTemperature</name>	<dataType>float</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentTemperature</name>			<dataType>float</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentCloudCover</name>			<dataType>ui1</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentDewPoint</name>			<dataType>float</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentPressure</name>			<dataType>ui2</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentLevel</name>				<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>Ozone</name>						<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>uvIndex</name>					<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>PrecipIntensity</name>			<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>PrecipProbability</name>			<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>PrecipType</name>					<dataType>string</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>Visibility</name>					<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentOzone</name>				<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentuvIndex</name>				<dataType>ui2</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentPrecipIntensity</name>		<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentPrecipProbability</name>	<dataType>ui2</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentPrecipType</name>			<dataType>string</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentVisibility</name>			<dataType>float</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>CurrentConditions</name>			<dataType>string</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>WindBearing</name>				<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>WindSpeed</name>					<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>WindGust</name>					<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TodayPressure</name>				<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TodayConditions</name>			<dataType>string</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TodayHighTemp</name>				<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TodayLowTemp</name>				<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TomorrowPressure</name>			<dataType>ui2</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TomorrowConditions</name>			<dataType>string</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TomorrowHighTemp</name>			<dataType>float</dataType>	</stateVariable>
-		<stateVariable sendEvents="yes"><name>TomorrowLowTemp</name>			<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentWindBearing</name>			<dataType>ui2</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentWindSpeed</name>			<dataType>float</dataType>	</stateVariable>
+		<stateVariable sendEvents="yes"><name>CurrentWindGust</name>			<dataType>float</dataType>	</stateVariable>
 		<stateVariable sendEvents="yes"><name>WeekConditions</name>				<dataType>string</dataType>	</stateVariable>
 	</serviceStateTable>
 	<actionList>

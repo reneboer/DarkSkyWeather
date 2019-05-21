@@ -1,6 +1,6 @@
 ABOUT = {
 	NAME = "DarkSky Weather",
-	VERSION = "1.2",
+	VERSION = "1.3",
 	DESCRIPTION = "DarkSky Weather plugin",
 	AUTHOR = "Rene Boer"
 }	
@@ -23,6 +23,7 @@ Version 1.0 2019-05-08 - Optimize request removing response data we do not proce
 						 All variables use the Weather Service ID.
 Version 1.2 2019-05-21 - Correction in D_DarkSkyWeather.json for new variables.
 						 Settings variable type error fix.
+Version 1.3 2019-05-21 - Correction in DisplayLine settings for new variables.
 						 
 
 
@@ -141,15 +142,15 @@ local VariablesMap = {
 -- Keep definitions in sync with JS code.
 local DisplayMap = {
 	[1] = {{ prefix = "", var = "CurrentConditions" }},
-	[2] = {{ prefix = "Pressure: ", var = "CurrentPressure", sid = SID_Baro}},
+	[2] = {{ prefix = "Pressure: ", var = "CurrentPressure"}},
 	[3] = {{ prefix = "Last update: ", var = "LastUpdate" }},
-    [4] = {{ prefix = "Wind: ", var = "WindSpeed" },{ prefix = "Gust: ", var = "WindGust" },{ prefix = "Bearing: ", var = "WindBearing" }},
-    [5] = {{ prefix = "Ozone: ", var = "Ozone" },{ prefix = "UV Index: ", var = "uvIndex" }},
-    [6] = {{ prefix = "Current Temperature: ", var = "CurrentTemperature", sid = SID_Temp }},
+    [4] = {{ prefix = "Wind: ", var = "CurrentWindSpeed" },{ prefix = "Gust: ", var = "CurrentWindGust" },{ prefix = "Bearing: ", var = "CurrentWindBearing" }},
+    [5] = {{ prefix = "Ozone: ", var = "CurrentOzone" },{ prefix = "UV Index: ", var = "CurrentuvIndex" }},
+    [6] = {{ prefix = "Current Temperature: ", var = "CurrentTemperature" }},
     [7] = {{ prefix = "Apparent Temperature: ", var = "ApparentTemperature" }},
     [8] = {{ prefix = "Current Cloud Cover: ", var = "CurrentCloudCover" }},
-    [9] = {{ prefix = "Precip: ", var = "PrecipType" },{ prefix = "Prob.: ", var = "PrecipProbability" },{ prefix = "Intensity: ", var = "PrecipIntensity" }},
-    [10] = {{ prefix = "Humidity: ", var = "CurrentLevel", sid = SID_Humid },{ prefix = "Dew Point: ", var = "dewPoint" }}
+    [9] = {{ prefix = "Precip: ", var = "CurrentPrecipType" },{ prefix = "Prob.: ", var = "CurrentPrecipProbability" },{ prefix = "Intensity: ", var = "CurrentPrecipIntensity" }},
+    [10] = {{ prefix = "Humidity: ", var = "CurrentHumidity" },{ prefix = "Dew Point: ", var = "CurrentDewPoint" }}
 }
 -- for writing to Luup variables, need serviceId and variable name for each sensor type
 -- for creating child devices also need device xml filename
@@ -558,8 +559,8 @@ end
 -- poll DarkSky Weather on a periodic basis
 function Weather_delay_callback()
 	check_param_updates()
-	DS_GetData() -- get DarkSky data
 	luup.call_delay ("Weather_delay_callback", DS["Period"])
+	DS_GetData() -- get DarkSky data
 end
 
 -- creates/initializes and registers the default Temperature & Humidity children devices

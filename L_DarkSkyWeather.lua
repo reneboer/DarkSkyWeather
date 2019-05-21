@@ -1,6 +1,6 @@
 ABOUT = {
 	NAME = "DarkSky Weather",
-	VERSION = "1.0",
+	VERSION = "1.2",
 	DESCRIPTION = "DarkSky Weather plugin",
 	AUTHOR = "Rene Boer"
 }	
@@ -21,6 +21,9 @@ Version 1.0 2019-05-08 - Optimize request removing response data we do not proce
 						 Added selectable child devices. Inspired by akbooer Netatmo plugin. Thanks akbooer.
 						 Changed all currently to start with Currently as prefix.
 						 All variables use the Weather Service ID.
+Version 1.2 2019-05-21 - Correction in D_DarkSkyWeather.json for new variables.
+						 Settings variable type error fix.
+						 
 
 
 Original author logread (aka LV999) upto version 0.4.
@@ -544,6 +547,9 @@ local tvalue
 			end
 			var.Set(key, value) -- device newly created... need to initialize variables
 		else
+			-- Convert to numeric if applicable
+			local nv = tonumber(tvalue,10)
+			tvalue = (nv or tvalue)
 			if tvalue ~= value then DS[key] = tvalue end
 		end
 	end

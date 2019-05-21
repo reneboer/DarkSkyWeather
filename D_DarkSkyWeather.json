@@ -162,7 +162,7 @@
 					"left": "1",
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
-						"Variable": "ApparentTemperature",
+						"Variable": "CurrentApparentTemperature",
 						"Top": 65,
 						"Left": 180,
 						"Width": 75,
@@ -189,7 +189,7 @@
 					"left": "1",
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
-						"Variable": "WindSpeed",
+						"Variable": "CurrentWindSpeed",
 						"Top": 85,
 						"Left": 180,
 						"Width": 75,
@@ -216,7 +216,7 @@
 					"left": "1",
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
-						"Variable": "WindGust",
+						"Variable": "CurrentWindGust",
 						"Top": 105,
 						"Left": 180,
 						"Width": 75,
@@ -243,7 +243,7 @@
 					"left": "1",
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
-						"Variable": "WindBearing",
+						"Variable": "CurrentWindBearing",
 						"Top": 125,
 						"Left": 180,
 						"Width": 75,
@@ -401,7 +401,7 @@
 				"lang_tag": "ui7_temperature_goes_above",
 				"text": "Temperature goes above"
 			},
-			"serviceId": "urn:upnp-org:serviceId:TemperatureSensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
@@ -428,7 +428,7 @@
 				"lang_tag": "ui7_temperature_goes_below",
 				"text": "Temperature goes below"
 			},
-			"serviceId": "urn:upnp-org:serviceId:TemperatureSensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
@@ -461,7 +461,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "ApparentTemperature",
+				"name": "CurrentApparentTemperature",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_temperature",
@@ -489,7 +489,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "ApparentTemperature",
+				"name": "CurrentApparentTemperature",
 				"comparisson": "<",
 				"prefix": {
 					"lang_tag": "ui7_temperature",
@@ -517,11 +517,11 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "Ozone",
+				"name": "CurrentOzone",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_ozone",
-					"text": "ozone"
+					"text": "Ozone"
 				},
 				"suffix": {
 					"lang_tag": "ui7_dobson",
@@ -545,11 +545,11 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "Ozone",
+				"name": "CurrentOzone",
 				"comparisson": "<",
 				"prefix": {
 					"lang_tag": "ui7_ozone",
-					"text": "ozone"
+					"text": "Ozone"
 				},
 				"suffix": {
 					"lang_tag": "ui7_dobson",
@@ -573,7 +573,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "uvIndex",
+				"name": "CurrentuvIndex",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_index",
@@ -598,7 +598,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "uvIndex",
+				"name": "CurrentuvIndex",
 				"comparisson": "<",
 				"prefix": {
 					"lang_tag": "ui7_index",
@@ -623,7 +623,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "Visibility",
+				"name": "CurrentVisibility",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_visibility",
@@ -648,7 +648,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "Visibility",
+				"name": "CurrentVisibility",
 				"comparisson": "<",
 				"prefix": {
 					"lang_tag": "ui7_visibility",
@@ -667,12 +667,12 @@
 				"lang_tag": "ui7_humidity_goes_above",
 				"text": "Humidity goes above"
 			},
-			"serviceId": "urn:micasaverde-com:serviceId:HumiditySensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
 				"dataType": "i4",
-				"name": "CurrentLevel",
+				"name": "CurrentHumidity",
 				"comparisson": ">",
 				"minValue": "0",
 				"maxValue": "99",
@@ -696,12 +696,12 @@
 				"lang_tag": "ui7_humidity_goes_below",
 				"text": "Humidity goes below"
 			},
-			"serviceId": "urn:micasaverde-com:serviceId:HumiditySensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
 				"dataType": "i4",
-				"name": "CurrentLevel",
+				"name": "CurrentHumidity",
 				"comparisson": "<",
 				"minValue": "1",
 				"maxValue": "100",
@@ -725,7 +725,7 @@
 				"lang_tag": "ui7_pressure_goes_above",
 				"text": "Pressure goes above"
 			},
-			"serviceId": "urn:upnp-org:serviceId:BarometerSensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
@@ -752,7 +752,7 @@
 				"lang_tag": "ui7_pressure_goes_below",
 				"text": "Pressure goes below"
 			},
-			"serviceId": "urn:upnp-org:serviceId:BarometerSensor1",
+			"serviceId": "urn:upnp-micasaverde-com:serviceId:Weather1",
 			"norepeat": "1",
 			"argumentList": [{
 				"id": 1,
@@ -847,7 +847,7 @@
 				"defaultValue": "",
 				"minValue": "0",
 				"maxValue": "200",
-				"name": "WindSpeed",
+				"name": "CurrentWindSpeed",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_speed",
@@ -872,7 +872,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "WindSpeed",
+				"name": "CurrentWindSpeed",
 				"minValue": "0",
 				"maxValue": "200",
 				"comparisson": "<",
@@ -901,7 +901,7 @@
 				"defaultValue": "",
 				"minValue": "0",
 				"maxValue": "200",
-				"name": "WindGust",
+				"name": "CurrentWindGust",
 				"comparisson": ">",
 				"prefix": {
 					"lang_tag": "ui7_speed",
@@ -926,7 +926,7 @@
 				"id": 1,
 				"dataType": "i4",
 				"defaultValue": "",
-				"name": "WindGust",
+				"name": "CurrentWindGust",
 				"minValue": "0",
 				"maxValue": "200",
 				"comparisson": "<",

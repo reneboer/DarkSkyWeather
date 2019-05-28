@@ -252,13 +252,40 @@
 				},
 				{
 					"ControlType": "label",
+					"top": "8",
+					"left": "0",
+					"Label": {
+						"text": "Reported Units:"
+					},
+					"Display": {
+						"Top": 145,
+						"Left": 50,
+						"Width": 100,
+						"Height": 20
+					}
+				},
+				{
+					"ControlType": "variable",
+					"top": "8",
+					"left": "1",
+					"Display": {
+						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
+						"Variable": "ReportedUnits",
+						"Top": 145,
+						"Left": 180,
+						"Width": 75,
+						"Height": 20
+					}
+				},
+				{
+					"ControlType": "label",
 					"top": "9",
 					"left": "0",
 					"Label": {
 						"text": "Tomorrow Conditions:"
 					},
 					"Display": {
-						"Top": 145,
+						"Top": 165,
 						"Left": 50,
 						"Width": 100,
 						"Height": 20
@@ -271,7 +298,7 @@
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 						"Variable": "TomorrowConditions",
-						"Top": 145,
+						"Top": 165,
 						"Left": 180,
 						"Width": 75,
 						"Height": 20
@@ -285,7 +312,7 @@
 						"text": "Week Conditions:"
 					},
 					"Display": {
-						"Top": 165,
+						"Top": 185,
 						"Left": 50,
 						"Width": 100,
 						"Height": 20
@@ -298,7 +325,7 @@
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 						"Variable": "WeekConditions",
-						"Top": 165,
+						"Top": 185,
 						"Left": 180,
 						"Width": 75,
 						"Height": 20
@@ -312,7 +339,7 @@
 						"text": "Plugin Version:"
 					},
 					"Display": {
-						"Top": 200,
+						"Top": 220,
 						"Left": 50,
 						"Width": 100,
 						"Height": 20
@@ -325,7 +352,7 @@
 					"Display": {
 						"Service": "urn:upnp-micasaverde-com:serviceId:Weather1",
 						"Variable": "Version",
-						"Top": 200,
+						"Top": 220,
 						"Left": 180,
 						"Width": 75,
 						"Height": 20

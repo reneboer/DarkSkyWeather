@@ -1,6 +1,6 @@
 ABOUT = {
 	NAME = "DarkSky Weather",
-	VERSION = "1.3",
+	VERSION = "1.4",
 	DESCRIPTION = "DarkSky Weather plugin",
 	AUTHOR = "Rene Boer"
 }	
@@ -24,10 +24,13 @@ Version 1.0 2019-05-08 - Optimize request removing response data we do not proce
 Version 1.2 2019-05-21 - Correction in D_DarkSkyWeather.json for new variables.
 						 Settings variable type error fix.
 Version 1.3 2019-05-21 - Correction in DisplayLine settings for new variables.
+Version 1.4 2019-05-28 - Better DisplayLine update for multi variable child devices (wind,rain) as some could display previous pull data.
+						 Added forecast LowTemp and forecast HighTemp.
+						 Added ReportedUnits variable to show the units used for data.
 						 
 
 
-Original author logread (aka LV999) upto version 0.4.
+Original author logread (aka LV999) up to version 0.4.
 
 It is intended to capture and monitor select weather data
 provided by DarkSky (formerly Forecast.io) under their general terms and conditions
@@ -58,7 +61,7 @@ local SID_Baro 		= "urn:upnp-org:serviceId:BarometerSensor1"
 local SID_Temp 		= "urn:upnp-org:serviceId:TemperatureSensor1"
 local SID_Generic	= "urn:micasaverde-com:serviceId:GenericSensor1"
 local SID_AltUI 	= "urn:upnp-org:serviceId:altui1"
-local DS_urltemplate = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s&exclude=hourly,flags,alerts"
+local DS_urltemplate = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s&exclude=hourly,alerts"
 
 local this_device = nil
 
@@ -123,6 +126,10 @@ local VariablesMap = {
 		["temperatureMaxTime"] = {variable = "MaxTempTime", decimal = 1},
 		["temperatureMin"] = {variable = "MinTemp", decimal = 1},
 		["temperatureMinTime"] = {variable = "MinTempTime", decimal = 1},
+		["temperatureHigh"] = {variable = "HighTemp", decimal = 1},
+		["temperatureHighTime"] = {variable = "HighTempTime", decimal = 1},
+		["temperatureLow"] = {variable = "LowTemp", decimal = 1},
+		["temperatureLowTime"] = {variable = "LowTempTime", decimal = 1},
 		["apparentTemperatureMax"] = {variable = "ApparentMaxTemp", decimal = 1},
 		["apparentTemperatureMaxTime"] = {variable = "ApparentMaxTempTime", decimal = 1},
 		["apparentTemperatureMin"] = {variable = "ApparentMinTemp", decimal = 1},
@@ -136,7 +143,8 @@ local VariablesMap = {
 		["windGust"] = {variable = "WindGust", decimal = 1},
 		["windGustTime"] = {variable = "WindGustTime"}
 	},
-	daily_summary = {serviceId = SID_Weather, variable = "WeekConditions"}
+	daily_summary = {variable = "WeekConditions"},
+	flags_units = {variable = "ReportedUnits"}
 }
 -- Mapping of data to display in ALTUI DisplayLines 1 & 2.
 -- Keep definitions in sync with JS code.
@@ -386,17 +394,11 @@ local function setvariables(varmap, value, prefix)
 		var.Set(SensorInfo[c].variable, value, SensorInfo[c].serviceId, varmap.childID)
 		-- Set display values for generic sensors
 		if c == "W" then
-			local wg = var.Get("CurrentWindGust")
-			local wb = var.Get("CurrentWindBearing")
-			var.Set("DisplayLine1", "Wind Speed "..value..", Gust "..wg, SID_AltUI, varmap.childID)
-			var.Set("DisplayLine2", "Wind bearing "..wb, SID_AltUI, varmap.childID)
+			luup.call_delay("DS_UpdateMultiDataItem",2,c..varmap.childID)
 		elseif c == "R" then
 			-- Value is new PrecipProbability, when more than 1% display other than just dray
 			if value > 1 then
-			local pi = var.Get("CurrentPrecipIntensity")
-			local pt = var.Get("CurrentPrecipType")
-				var.Set("DisplayLine1", "Precipitation  Probability "..value.."%", SID_AltUI, varmap.childID)
-				var.Set("DisplayLine2", "Intensity "..pi..", Type "..pt, SID_AltUI, varmap.childID)
+				luup.call_delay("DS_UpdateMultiDataItem",2,c..varmap.childID)
 			else
 				var.Set("DisplayLine1", "No Precipitation expected", SID_AltUI, varmap.childID)
 				var.Set("DisplayLine2", "", SID_AltUI, varmap.childID)
@@ -416,6 +418,29 @@ local function setvariables(varmap, value, prefix)
 			end
 	end
 ]]
+end
+
+-- Update a multi data item with a slide delay so all parameters are updated
+function DS_UpdateMultiDataItem(data)
+	local sf,ss = string.format, string.sub
+	
+	local item = ss(data,1,1)
+	local ID = tonumber(ss(data,2))
+	if item == "W" then
+		log.Debug("Updating wind data for child device "..ID)
+		local ws = var.GetNumber("CurrentWindSpeed")
+		local wg = var.GetNumber("CurrentWindGust")
+		local wb = var.GetNumber("CurrentWindBearing")
+		var.Set("DisplayLine1", sf("Speed %.1f, Gust %.1f ",ws,wg), SID_AltUI, ID)
+		var.Set("DisplayLine2", sf("Bearing %d ",wb), SID_AltUI, ID)
+	elseif item == "R" then
+		log.Debug("Updating rain data for child device "..ID)
+		local pp = var.GetNumber("CurrentPrecipProbability")
+		local pi = var.GetNumber("CurrentPrecipIntensity")
+		local pt = var.Get("CurrentPrecipType")
+		var.Set("DisplayLine1", sf("Type %s ",pt), SID_AltUI, ID)
+		var.Set("DisplayLine2", sf("Probability %d%%, Intensity %.2f",pp,pi), SID_AltUI, ID)
+	end
 end
 
 -- Parse the DS json raw weather information hierarchy.
@@ -465,6 +490,10 @@ local function extractloop(datatable)
 	-- Get daily summary data
 	if datatable.daily.summary then
 		setvariables(VariablesMap.daily_summary,datatable.daily.summary)
+	end	
+	-- Get units data
+	if datatable.flags.units then
+		setvariables(VariablesMap.flags_units,datatable.flags.units)
 	end	
 end
 

@@ -95,6 +95,10 @@
 					}
 				},
 				{
+					"ControlGroup": "1",
+					"ControlType": "line_break"
+				},
+				{
 					"ControlGroup":"1",
 					"ControlType": "variable",
 					"top": "1",

@@ -1,6 +1,6 @@
 ABOUT = {
 	NAME = "DarkSky Weather",
-	VERSION = "1.4",
+	VERSION = "1.5",
 	DESCRIPTION = "DarkSky Weather plugin",
 	AUTHOR = "Rene Boer"
 }	
@@ -27,6 +27,7 @@ Version 1.3 2019-05-21 - Correction in DisplayLine settings for new variables.
 Version 1.4 2019-05-28 - Better DisplayLine update for multi variable child devices (wind,rain) as some could display previous pull data.
 						 Added forecast LowTemp and forecast HighTemp.
 						 Added ReportedUnits variable to show the units used for data.
+Version 1.5 2020-03-06 - Added https protocol as it is no longer a value acceptable for API.
 						 
 
 
@@ -50,6 +51,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 -- plugin general variables
 local https = require("ssl.https")
+local ltn12 = require("ltn12")
 local json = require("dkjson")
 
 local SID_Weather 	= "urn:upnp-micasaverde-com:serviceId:Weather1"
@@ -184,6 +186,21 @@ local SensorInfo = setmetatable (
 ---------------------------------------------------------------------------------------------
 -- Utility functions
 ---------------------------------------------------------------------------------------------
+-- Need wrapper for Vera UI7.31 to set protocol. Sadly tls1.2 is not supported on the Lite.
+local function HttpsGet(strURL)
+	local result = {}
+	local bdy,cde,hdrs,stts = https.request{
+			url=strURL, 
+			method='GET',
+			protocol="tlsv1_2",
+			options = "all",
+            verify = "none",
+			sink=ltn12.sink.table(result)
+		}
+	return bdy,cde,hdrs,table.concat(result)
+end
+
+
 local log
 local var
 
@@ -531,16 +548,16 @@ local function DS_GetData()
 		-- If there is no rain sensor we do not need minutely data
 		if DS.RainSensor == 0 then url = url .. ",minutely" end
 		log.Debug("calling DarkSky API with url = %s", url)
-		local wdata, retcode = https.request(url)
+		local wdata, retcode, headers, res = HttpsGet(url)
 		local err = (retcode ~=200)
 		if err then -- something wrong happpened (website down, wrong key or location)
-			wdata = nil -- to do: better error handling ?
+			res = nil -- to do: better error handling ?
 			log.Error("DarkSky API call failed with http code = %s", tostring(retcode))
 		else
-			log.Debug(wdata)
-			wdata, err = json.decode(wdata)
+			log.Debug(res)
+			res, err = json.decode(res)
 			if not (err == 225) then
-				extractloop(wdata)
+				extractloop(res)
 				-- Update display for ALTUI
 				displayLine(1)
 				displayLine(2)

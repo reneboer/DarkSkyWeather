@@ -1,10 +1,14 @@
 ABOUT = {
 	NAME = "DarkSky Weather",
-	VERSION = "1.5",
+	VERSION = "1.8",
 	DESCRIPTION = "DarkSky Weather plugin",
 	AUTHOR = "Rene Boer"
 }	
 --[[
+
+Alternative 1:
+https://openweathermap.org/api
+
 
 Version 0.1 2016-11-17 - Alpha version for testing
 Version 0.2 2016-11-18 - Beta version for first AltUI App Store release
@@ -28,8 +32,10 @@ Version 1.4 2019-05-28 - Better DisplayLine update for multi variable child devi
 						 Added forecast LowTemp and forecast HighTemp.
 						 Added ReportedUnits variable to show the units used for data.
 Version 1.5 2020-03-06 - Added https protocol as it is no longer a value acceptable for API.
-						 
-
+Version 1.6 2020-03-11 - Check for unsupported Vera models.
+						 Code cleanup.
+Version 1.7 2020-03-11 - Older Vera models user curl rather then http request.
+Version 1.8 2020-05-23 - Added dewpoint child device.
 
 Original author logread (aka LV999) up to version 0.4.
 
@@ -167,6 +173,7 @@ local DisplayMap = {
 local SensorInfo = setmetatable (
   {	
     ['A'] = { deviceXML = "D_TemperatureSensor1.xml", serviceId = SID_Temp, variable = "CurrentTemperature", name="Apparent Temp."},
+    ['D'] = { deviceXML = "D_TemperatureSensor1.xml", serviceId = SID_Temp, variable = "CurrentTemperature", name="Dewpoint"},
     ['T'] = { deviceXML = "D_TemperatureSensor1.xml", serviceId = SID_Temp, variable = "CurrentTemperature", name="Temperature"},
     ['H'] = { deviceXML = "D_HumiditySensor1.xml", serviceId = SID_Humid, variable = "CurrentLevel", name="Humidity"},
     ['U'] = { deviceXML = "D_LightSensor1.xml", deviceJSON = "D_UVSensor1.json", serviceId = SID_UV, variable = "CurrentLevel", name="UV Index"},
@@ -186,23 +193,9 @@ local SensorInfo = setmetatable (
 ---------------------------------------------------------------------------------------------
 -- Utility functions
 ---------------------------------------------------------------------------------------------
--- Need wrapper for Vera UI7.31 to set protocol. Sadly tls1.2 is not supported on the Lite.
-local function HttpsGet(strURL)
-	local result = {}
-	local bdy,cde,hdrs,stts = https.request{
-			url=strURL, 
-			method='GET',
-			protocol="tlsv1_2",
-			options = "all",
-            verify = "none",
-			sink=ltn12.sink.table(result)
-		}
-	return bdy,cde,hdrs,table.concat(result)
-end
-
-
 local log
 local var
+local utils
 
 -- API getting and setting variables and attributes from Vera more efficient.
 local function varAPI()
@@ -398,6 +391,84 @@ local taskHandle = -1
 		DeviceMessage = _devmessage
 	}
 end 
+
+-- API to handle some Util functions
+local function utilsAPI()
+local _UI5 = 5
+local _UI6 = 6
+local _UI7 = 7
+local _UI8 = 8
+local _OpenLuup = 99
+
+  local function _init()
+  end  
+
+  -- See what system we are running on, some Vera or OpenLuup
+  local function _getui()
+    if (luup.attr_get("openLuup",0) ~= nil) then
+      return _OpenLuup
+    else
+      return luup.version_major
+    end
+    return _UI7
+  end
+  
+  local function _getmemoryused()
+    return math.floor(collectgarbage "count")         -- app's own memory usage in kB
+  end
+  
+  local function _setluupfailure(status,devID)
+    if (luup.version_major < 7) then status = status ~= 0 end        -- fix UI5 status type
+    luup.set_failure(status,devID)
+  end
+
+  -- Luup Reload function for UI5,6 and 7
+  local function _luup_reload()
+    if (luup.version_major < 6) then 
+      luup.call_action("urn:micasaverde-com:serviceId:HomeAutomationGateway1", "Reload", {}, 0)
+    else
+      luup.reload()
+    end
+  end
+  
+  return {
+    Initialize = _init,
+    ReloadLuup = _luup_reload,
+    GetMemoryUsed = _getmemoryused,
+    SetLuupFailure = _setluupfailure,
+    GetUI = _getui,
+    IsUI5 = _UI5,
+    IsUI6 = _UI6,
+    IsUI7 = _UI7,
+    IsUI8 = _UI8,
+    IsOpenLuup = _OpenLuup
+  }
+end 
+
+-- Need wrapper for Vera UI7.31 to set protocol. Sadly tls1.2 is not supported on the Lite.
+local function HttpsGet(strURL)
+	if (utils.GetUI() ~= utils.IsOpenLuup) and (not luup.model) then
+		-- Older try to user curl
+		local bdy,cde,hdrs = 1, 200, nil
+		local p = io.popen("curl -k -s -m 15 -o - '" .. strURL .. "'")
+		local result = p:read("*a")
+		p:close()
+		return bdy,cde,hdrs,result
+	else
+		-- Newer veras we can use http module
+		local result = {}
+		local bdy,cde,hdrs,stts = https.request{
+			url = strURL, 
+			method = 'GET',
+			protocol = "any",
+			options =  {"all", "no_sslv2", "no_sslv3"},
+            verify = "none",
+			sink=ltn12.sink.table(result)
+		}
+		return bdy,cde,hdrs,table.concat(result)
+	end
+end
+
 
 -- processes and parses the DS data into device variables 
 local function setvariables(varmap, value, prefix)
@@ -699,12 +770,27 @@ function init(lul_device)
 	this_device = lul_device
 	log = logAPI()
 	var = varAPI()
+	utils = utilsAPI()
 	var.Initialize(SID_Weather, this_device)
 	var.Default("LogLevel", 1)
-	log.Initialize(ABOUT.NAME, var.GetNumber("LogLevel"))
+	log.Initialize(ABOUT.NAME, var.GetNumber("LogLevel"), (utils.GetUI() == utils.IsOpenLuup or utils.GetUI() == utils.IsUI5))
 	log.Info("device startup")
+	-- Does no longer run on Lite and older models as tlsv1.2 is required
+--	if (utils.GetUI() ~= utils.IsOpenLuup) and (not luup.model) then
+--		var.Set("DisplayLine1", "Vera model not supported.", SID_AltUI)
+--		utils.SetLuupFailure(0, this_device)
+--		return false, "Plug-in is not supported on this Vera.", ABOUT.NAME
+--	end
 	check_param_updates()
 	createchildren(this_device)
+	-- See if user disabled plug-in 
+	if var.GetAttribute("disabled") == 1 then
+		log.Warning("Init: Plug-in version - DISABLED")
+		var.Set("DisplayLine2", "Disabled. ", SID_AltUI)
+		-- Still create any child devices so we do not loose configurations.
+		utils.SetLuupFailure(0, PlugIn.THIS_DEVICE)
+		return true, "Plug-in disabled attribute set", ABOUT.NAME
+	end
 	luup.call_delay ("Weather_delay_callback", 15)
 	log.Info("device started")
 	return true, "OK", ABOUT.NAME

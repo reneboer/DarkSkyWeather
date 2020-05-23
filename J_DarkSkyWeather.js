@@ -2,8 +2,10 @@
 /* 
 	DarkSkyWeather Hub Control UI
 	Written by R.Boer. 
-	V0.9 3 May 2019
+	V1.8 23 May 2029
 	
+Changes V1.8:
+	Added Dewpoint as child device.
 Changes V0.9:
 	Added display line selections.
 	Selectable number of forecast days to include.
@@ -45,7 +47,7 @@ var DarkSkyWeather = (function (api) {
 			// Keep selections in match with table in LUA code.
 			var displayMap = [{'value':1,'label':'Current Conditions'},{'value':2,'label':'Current Pressure'},{'value':3,'label':'Last Update'},{'value':4,'label':'Wind Speed, Gust and Bearing'},{'value':5,'label':'Ozone and UV Index'},{'value':6,'label':'Current Temperature'},{'value':7,'label':'Apparent Temperature'},{'value':8,'label':'Current Cloud Cover'},{'value':9,'label':'Percipipation Type, Probability and Intensity'},{'value':10,'label':'Humidity and Dew Point'}];
 			var forecastMap = [{'value':0,'label':'No forecast'},{'value':1,'label':'One day'},{'value':2,'label':'Two days'},{'value':3,'label':'Three days'},{'value':4,'label':'Four days'},{'value':5,'label':'Five days'},{'value':6,'label':'Six days'},{'value':7,'label':'Seven days'}];
-			var childDevMap = [{'value':'T','label':'Temperature'},{'value':'H','label':'Humidity'},{'value':'P','label':'Pressure'},{'value':'A','label':'Apparent Temperature'},{'value':'O','label':'Ozone'},{'value':'U','label':'UV Index'},{'value':'V','label':'Visibility'},{'value':'W','label':'Wind Data'},{'value':'R','label':'Percipipation Data'}];
+			var childDevMap = [{'value':'T','label':'Temperature'},{'value':'D','label':'Dewpoint'},{'value':'H','label':'Humidity'},{'value':'P','label':'Pressure'},{'value':'A','label':'Apparent Temperature'},{'value':'O','label':'Ozone'},{'value':'U','label':'UV Index'},{'value':'V','label':'Visibility'},{'value':'W','label':'Wind Data'},{'value':'R','label':'Percipipation Data'}];
 
 			var html = '<div class="deviceCpanelSettingsPage">'+
 				'<h3>Device #'+deviceID+'&nbsp;&nbsp;&nbsp;'+api.getDisplayedDeviceName(deviceID)+'</h3>';
